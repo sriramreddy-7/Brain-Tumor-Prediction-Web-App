@@ -4,7 +4,7 @@ import os
 import cv2
 import numpy as np
 import tensorflow as tf
-
+from django.conf import settings 
 # Define the path to the saved Keras model
 model_filename = 'brain_tumor_model.h5'
 model_dir = os.path.dirname(os.path.abspath(__file__))
@@ -41,7 +41,7 @@ def predict_tumor(image_path):
     prediction = model.predict(img_input)
     tumor_classes = ['giloma_tumor', 'no_tumor', 'pituitary_tumor', 'meningioma_tumor']
     predicted_class = np.argmax(prediction)
-    return tumor_classes[predicted_class]
+    return tumor_classes[predicted_class], image_path
 
 # Django view function for index page
 def index(request):
@@ -57,18 +57,29 @@ def predict_tumor_view(request):
             return HttpResponse("No image file uploaded.")
 
         # Save the uploaded image to the directory
-        image_path = os.path.join(image_dir, image_file.name)
+        image_path = os.path.join(settings.MEDIA_ROOT, image_file.name)
         with open(image_path, 'wb') as f:
             f.write(image_file.read())
         
         try:
             # Predict the brain tumor using the uploaded image
-            predicted_tumor = predict_tumor(image_path)
+            predicted_tumor , image_path = predict_tumor(image_path)
         except Exception as e:
             return HttpResponse(f"Error: {str(e)}")
 
         # Return the predicted tumor type as a response
-        return render(request, 'result.html', {'predicted_tumor': predicted_tumor})
+        prediction_message = ''
+        if predicted_tumor == 'giloma_tumor':
+            prediction_message = "Predicted Tumor: Giloma Tumor. Please visit a hospital and consult a doctor."
+        elif predicted_tumor == 'no_tumor':
+            prediction_message = "No Tumor Detected in Python."
+        elif predicted_tumor == 'pituitary_tumor':
+            prediction_message = "Predicted Tumor: Pituitary Tumor. Please visit a hospital and consult a doctor."
+        elif predicted_tumor == 'meningioma_tumor':
+            prediction_message = "Predicted Tumor: Meningioma Tumor. Please visit a hospital and consult a doctor."
+        else:
+            prediction_message="No Tumor Detected"
+        return render(request, 'result.html', {'prediction_message': prediction_message,'image_path': image_path})
     else:
         # If the request method is not POST, return a default response
         return HttpResponse("Please upload an image.")
