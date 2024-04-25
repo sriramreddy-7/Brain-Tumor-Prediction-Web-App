@@ -70,15 +70,15 @@ def predict_tumor_view(request):
         # Return the predicted tumor type as a response
         prediction_message = ''
         if predicted_tumor == 'giloma_tumor':
-            prediction_message = "Predicted Tumor: Giloma Tumor. Please visit a hospital and consult a doctor."
+            prediction_message = "No Monkey POX."
         elif predicted_tumor == 'no_tumor':
-            prediction_message = "No Tumor Detected in Python."
+            prediction_message = "Monkey POX Detected"
         elif predicted_tumor == 'pituitary_tumor':
-            prediction_message = "Predicted Tumor: Pituitary Tumor. Please visit a hospital and consult a doctor."
+            prediction_message = "No Monkey POX."
         elif predicted_tumor == 'meningioma_tumor':
-            prediction_message = "Predicted Tumor: Meningioma Tumor. Please visit a hospital and consult a doctor."
+            prediction_message = "No Monkey POX."
         else:
-            prediction_message="No Tumor Detected"
+            prediction_message="Monkey POX Detected"
         return render(request, 'result.html', {'prediction_message': prediction_message,'image_path': image_path})
     else:
         # If the request method is not POST, return a default response
